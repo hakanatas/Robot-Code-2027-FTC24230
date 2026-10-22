@@ -47,10 +47,11 @@ public class redTeleop extends OpMode {
 
         // A tuşuna basılı tutulduğunda:
         if (gamepad1.a) {
-            turnInput = Superstructure.updateTargetLockOrSweep(robotPose.heading());
+            turnInput = Superstructure.updateTargetLockOrSweep(robotPose.heading(), follower.velocity().omega,
+                    Math.hypot(follower.velocity().vx, follower.velocity().vy));
         } else {
-            // Tuş bırakıldığında bir sonraki basış için sweep merkezini sıfırla
-            Superstructure.stopSweep();
+            // Tuş bırakıldığında bir sonraki basış için hedef açıyı ve sweep merkezini sıfırla
+            Superstructure.stopAim();
         }
 
         // Sürüş vektörünü uygula
@@ -66,15 +67,18 @@ public class redTeleop extends OpMode {
         if (gamepad1.startWasPressed()) {
             Pose cornerPose = new Pose(8.7, 8.7, Math.toRadians(90));
             follower.setPose(cornerPose);
+            // Hedef tahmini eski heading'e göreydi, sıfırla
+            Superstructure.stopAim();
         }
 
         Superstructure.write();
 
         // Telemetri
-        telemetry.addData("Durum", gamepad1.a ? (Superstructure.vision.tv ? "KİLİTLENDİ (PID)" : "RADAR TARAMASI (±30°)") : "MANUEL");
+        telemetry.addData("Durum", gamepad1.a ? (Superstructure.hasAimTarget() ? "KİLİTLENDİ" : "RADAR TARAMASI (±30°)") : "MANUEL");
         telemetry.addData("Tag Görünüyor mu", Superstructure.vision.tv);
         telemetry.addData("tx", Superstructure.vision.tx);
-        telemetry.addData("Hizalandı mı", Superstructure.isAligned());
+        telemetry.addData("Tag Mesafesi (cm)", "%.1f  (0 = tag yok ya da Limelight Full 3D kapalı)", Superstructure.getTagDistanceCm());
+        telemetry.addData("Hizalandı mı", Superstructure.isAligned(follower.velocity().omega));
         telemetry.addData("Robot Heading", Math.toDegrees(robotPose.heading()));
         telemetry.update();
     }

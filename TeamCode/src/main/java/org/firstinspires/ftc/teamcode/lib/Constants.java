@@ -22,11 +22,23 @@ public class Constants {
                 {-16.5,32.0},
                 {-17.0,32.0}
         };
+        // Tag mesafesi (cm, TAG_DISTANCE_SCALE ile düzeltilmiş, telemetry'deki "Tag distance") ->
+        // topun kutuya girdiği launcher hızı (ticks/s). Ara mesafeler iki nokta arasından hesaplanır,
+        // tablonun dışındaki mesafelerde en yakın uçtaki hız kullanılır. Sahada yeni nokta buldukça ekle.
+        public static double[][] kLauncherVelocityValues = {
+                {131.7, 1220}, // 129 cm okundu (düzeltmeden önce), 1220 girdi
+                {156.8, 1220}, // 153.6 cm okundu (düzeltmeden önce), 1220 girdi
+        };
+        public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kLauncherVelocityMap = new InterpolatingTreeMap<>();
         public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kHoodMap = new InterpolatingTreeMap<>();
         public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kRPMMap = new InterpolatingTreeMap<>();
         static {
             for (double[] pair : kRPMValues) {
                 kRPMMap.put(new InterpolatingDouble(pair[0]), new InterpolatingDouble(pair[1]));
+            }
+
+            for (double[] pair : kLauncherVelocityValues) {
+                kLauncherVelocityMap.put(new InterpolatingDouble(pair[0]), new InterpolatingDouble(pair[1]));
             }
 
             for (double[] pair : kHoodValues) {
